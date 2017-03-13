@@ -154,8 +154,6 @@ int main() {
 	sf::Sprite imageSprite;
 	imageSprite.setTexture(imageTexture);
 
-	imageDiff.saveToFile("diff.png");
-
 	while (window.isOpen())
 	{
 		sf::Event event;
