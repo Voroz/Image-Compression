@@ -28,11 +28,6 @@ struct Vec4 {
 sf::Image generateDiff(sf::Image image) {
 	sf::Image imageDiff;
 	imageDiff.create(image.getSize().x, image.getSize().y);
-	for (int y = 0; y < imageDiff.getSize().y; y++) {
-		for (int x = 0; x < imageDiff.getSize().x; x++) {
-			imageDiff.setPixel(x, y, sf::Color(0, 0, 0, 0));
-		}
-	}
 	imageDiff.setPixel(0, 0, image.getPixel(0, 0));
 
 	for (int y = 0; y < image.getSize().y; y++) {
@@ -62,9 +57,6 @@ sf::Image generateDiff(sf::Image image) {
 				guessColorVec.d /= 2;
 			}
 			sf::Color guessColor(guessColorVec.a, guessColorVec.b, guessColorVec.c, guessColorVec.d);
-			if (image.getPixel(x, y) == guessColor) {
-				continue;
-			}
 			sf::Color diffColor = image.getPixel(x, y);
 
 			// Have to do it like this for overflow of sf::Color to work
@@ -161,6 +153,8 @@ int main() {
 
 	sf::Sprite imageSprite;
 	imageSprite.setTexture(imageTexture);
+
+	imageDiff.saveToFile("diff.png");
 
 	while (window.isOpen())
 	{
