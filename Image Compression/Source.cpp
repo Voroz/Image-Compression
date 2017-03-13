@@ -54,7 +54,7 @@ sf::Image generateDiff(sf::Image image) {
 			}
 			else {
 				sf::Color colA = image.getPixel(x - 1, y);
-				sf::Color colB = image.getPixel(0, y - 1);
+				sf::Color colB = image.getPixel(x, y - 1);
 				guessColorVec = Vec4(colA.r + colB.r, colA.g + colB.g, colA.b + colB.b, colA.a + colB.a);
 				guessColorVec.a /= 2;
 				guessColorVec.b /= 2;
@@ -103,7 +103,7 @@ sf::Image generateImage(sf::Image imageDiff) {
 			}
 			else {
 				sf::Color colA = image.getPixel(x - 1, y);
-				sf::Color colB = image.getPixel(0, y - 1);
+				sf::Color colB = image.getPixel(x, y - 1);
 				guessColorVec = Vec4(colA.r + colB.r, colA.g + colB.g, colA.b + colB.b, colA.a + colB.a);
 				guessColorVec.a /= 2;
 				guessColorVec.b /= 2;
@@ -161,8 +161,6 @@ int main() {
 
 	sf::Sprite imageSprite;
 	imageSprite.setTexture(imageTexture);
-
-
 
 	while (window.isOpen())
 	{
