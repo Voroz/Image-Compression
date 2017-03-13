@@ -126,10 +126,13 @@ int main() {
 	window.setVerticalSyncEnabled(true);
 
 	sf::Image image;
-	if (!image.loadFromFile("dices.png")) {
+	if (!image.loadFromFile("png_tree.png")) {
 		std::cout << "Failed to load file to image" << std::endl;
 		return 1;
 	}
+
+	window.setSize(image.getSize());
+	window.setView(sf::View(sf::FloatRect(0, 0, image.getSize().x, image.getSize().y)));
 
 	// Generate imageDiff from original image
 	sf::Image imageDiff = generateDiff(image);
