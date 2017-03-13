@@ -28,6 +28,11 @@ struct Vec4 {
 sf::Image generateDiff(sf::Image image) {
 	sf::Image imageDiff;
 	imageDiff.create(image.getSize().x, image.getSize().y);
+	for (int y = 0; y < imageDiff.getSize().y; y++) {
+		for (int x = 0; x < imageDiff.getSize().x; x++) {
+			imageDiff.setPixel(x, y, sf::Color(0, 0, 0, 0));
+		}
+	}
 	imageDiff.setPixel(0, 0, image.getPixel(0, 0));
 
 	for (int y = 0; y < image.getSize().y; y++) {
@@ -57,7 +62,11 @@ sf::Image generateDiff(sf::Image image) {
 				guessColorVec.d /= 2;
 			}
 			sf::Color guessColor(guessColorVec.a, guessColorVec.b, guessColorVec.c, guessColorVec.d);
+			if (image.getPixel(x, y) == guessColor) {
+				continue;
+			}
 			sf::Color diffColor = image.getPixel(x, y);
+
 			// Have to do it like this for overflow of sf::Color to work
 			diffColor.r -= guessColor.r;
 			diffColor.g -= guessColor.g;
@@ -101,9 +110,11 @@ sf::Image generateImage(sf::Image imageDiff) {
 				guessColorVec.c /= 2;
 				guessColorVec.d /= 2;
 			}
+			
 			sf::Color guessColor(guessColorVec.a, guessColorVec.b, guessColorVec.c, guessColorVec.d);
 			sf::Color originalColor = guessColor;
 			sf::Color col = imageDiff.getPixel(x, y);
+
 			// Have to do it like this for overflow of sf::Color to work
 			originalColor.r += col.r;
 			originalColor.g += col.g;
