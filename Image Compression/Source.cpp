@@ -6,14 +6,12 @@
 
 struct Vec4 {
 	Vec4() :
-		a(0), b(0), c(0), d(0)
-	{
+		a(0), b(0), c(0), d(0) {
 
 	}
 
 	Vec4(int a, int b, int c, int d) :
-		a(a), b(b), c(c), d(d)
-	{
+		a(a), b(b), c(c), d(d) {
 
 	}
 
@@ -22,6 +20,61 @@ struct Vec4 {
 	int b;
 	int c;
 	int d;
+};
+
+class MyColor : public sf::Color {
+public:
+
+	MyColor() : sf::Color()	{
+
+	}
+
+	MyColor(unsigned char r, unsigned char g, unsigned char b, unsigned char a = 255) :
+		sf::Color(r, g, b, a) {
+
+	}
+
+	MyColor(const MyColor& rhs) {
+		r = rhs.r;
+		g = rhs.g;
+		b = rhs.b;
+		a = rhs.a;
+	}
+
+	MyColor(const sf::Color& rhs) {
+		r = rhs.r;
+		g = rhs.g;
+		b = rhs.b;
+		a = rhs.a;
+	}
+
+	MyColor& operator+=(const MyColor& rhs) {
+		r += rhs.r;
+		g += rhs.g;
+		b += rhs.b;
+		a += rhs.a;
+
+		return *this;
+	}
+
+	friend MyColor operator+(MyColor lhs, const MyColor& rhs) {
+		lhs += rhs;
+		return lhs;
+	}
+
+	MyColor& operator-=(const MyColor& rhs) {
+		r -= rhs.r;
+		g -= rhs.g;
+		b -= rhs.b;
+		a -= rhs.a;
+
+		return *this;
+	}
+
+	friend MyColor operator-(MyColor lhs, const MyColor& rhs) {
+		lhs -= rhs;
+		return lhs;
+	}
 };
 
 
@@ -40,30 +93,24 @@ sf::Image generateDiff(sf::Image image) {
 			// Using vec4 because sf::Color will overflow since it can only handle bytes.
 			Vec4 guessColorVec;
 			if (x - 1 < 0) {
-				sf::Color col = image.getPixel(x, y - 1);
+				MyColor col = image.getPixel(x, y - 1);
 				guessColorVec = Vec4(col.r, col.g, col.b, col.a);
 			}
 			else if (y - 1 < 0) {
-				sf::Color col = image.getPixel(x - 1, y);
+				MyColor col = image.getPixel(x - 1, y);
 				guessColorVec = Vec4(col.r, col.g, col.b, col.a);
 			}
 			else {
-				sf::Color colA = image.getPixel(x - 1, y);
-				sf::Color colB = image.getPixel(x, y - 1);
+				MyColor colA = image.getPixel(x - 1, y);
+				MyColor colB = image.getPixel(x, y - 1);
 				guessColorVec = Vec4(colA.r + colB.r, colA.g + colB.g, colA.b + colB.b, colA.a + colB.a);
 				guessColorVec.a /= 2;
 				guessColorVec.b /= 2;
 				guessColorVec.c /= 2;
 				guessColorVec.d /= 2;
 			}
-			sf::Color guessColor(guessColorVec.a, guessColorVec.b, guessColorVec.c, guessColorVec.d);
-			sf::Color diffColor = image.getPixel(x, y);
-
-			// Have to do it like this for overflow of sf::Color to work
-			diffColor.r -= guessColor.r;
-			diffColor.g -= guessColor.g;
-			diffColor.b -= guessColor.b;
-			diffColor.a -= guessColor.a;
+			MyColor guessColor(guessColorVec.a, guessColorVec.b, guessColorVec.c, guessColorVec.d);
+			MyColor diffColor = MyColor(image.getPixel(x, y)) - guessColor;
 
 			imageDiff.setPixel(x, y, diffColor);
 		}
@@ -86,16 +133,16 @@ sf::Image generateImage(sf::Image imageDiff) {
 			// Using vec4 because sf::Color will overflow since it can only handle bytes
 			Vec4 guessColorVec;
 			if (x - 1 < 0) {
-				sf::Color col = image.getPixel(x, y - 1);
+				MyColor col = image.getPixel(x, y - 1);
 				guessColorVec = Vec4(col.r, col.g, col.b, col.a);
 			}
 			else if (y - 1 < 0) {
-				sf::Color col = image.getPixel(x - 1, y);
+				MyColor col = image.getPixel(x - 1, y);
 				guessColorVec = Vec4(col.r, col.g, col.b, col.a);
 			}
 			else {
-				sf::Color colA = image.getPixel(x - 1, y);
-				sf::Color colB = image.getPixel(x, y - 1);
+				MyColor colA = image.getPixel(x - 1, y);
+				MyColor colB = image.getPixel(x, y - 1);
 				guessColorVec = Vec4(colA.r + colB.r, colA.g + colB.g, colA.b + colB.b, colA.a + colB.a);
 				guessColorVec.a /= 2;
 				guessColorVec.b /= 2;
@@ -103,15 +150,8 @@ sf::Image generateImage(sf::Image imageDiff) {
 				guessColorVec.d /= 2;
 			}
 			
-			sf::Color guessColor(guessColorVec.a, guessColorVec.b, guessColorVec.c, guessColorVec.d);
-			sf::Color originalColor = guessColor;
-			sf::Color col = imageDiff.getPixel(x, y);
-
-			// Have to do it like this for overflow of sf::Color to work
-			originalColor.r += col.r;
-			originalColor.g += col.g;
-			originalColor.b += col.b;
-			originalColor.a += col.a;
+			MyColor guessColor(guessColorVec.a, guessColorVec.b, guessColorVec.c, guessColorVec.d);
+			MyColor originalColor = guessColor + MyColor(imageDiff.getPixel(x, y));
 
 			image.setPixel(x, y, originalColor);
 		}
@@ -126,7 +166,7 @@ int main() {
 	window.setVerticalSyncEnabled(true);
 
 	sf::Image image;
-	if (!image.loadFromFile("png_tree.png")) {
+	if (!image.loadFromFile("dices.png")) {
 		std::cout << "Failed to load file to image" << std::endl;
 		return 1;
 	}
